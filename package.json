@@ -1,14 +1,19 @@
 {
   "name": "powershell-watchdog",
   "displayName": "PowerShell Memory Watchdog",
-  "description": "Monitor the current window's PowerShell Editor Services memory on Windows.",
-  "version": "0.1.0",
+  "description": "Monitor memory of pwsh processes owned by each local VS Code window on Windows.",
+  "version": "0.2.0",
   "publisher": "FrenchExDev",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/FrenchExDev2/PoSh.WatchDog.PoSh.git"
+  },
   "license": "MIT",
   "engines": {
     "vscode": "^1.114.0",
     "node": ">=22"
   },
+  "icon": "images/icon.png",
   "categories": [
     "Other"
   ],
@@ -34,7 +39,7 @@
   },
   "scripts": {
     "test": "node --test test/*.test.js",
-    "package": "vsce package --no-dependencies --allow-missing-repository --out dist/",
+    "package": "vsce package --no-dependencies --out dist/",
     "test:integration": "node test/run-integration.js"
   },
   "contributes": {
@@ -61,7 +66,7 @@
       },
       {
         "command": "powershellWatchdog.restart",
-        "title": "PowerShell Watchdog: Restart Session…"
+        "title": "PowerShell Watchdog: Restart Editor Services Session…"
       },
       {
         "command": "powershellWatchdog.diagnostics",
@@ -78,7 +83,7 @@
         "frenchexdev.powershellWatchdog.enabled": {
           "type": "boolean",
           "default": true,
-          "description": "Monitor an already running local PowerShell Editor Services session.",
+          "description": "Monitor pwsh instances launched by this VS Code window, its terminals and their child processes.",
           "scope": "machine"
         },
         "frenchexdev.powershellWatchdog.mode": {
@@ -88,7 +93,7 @@
             "notifyOnly"
           ],
           "default": "automatic",
-          "description": "Automatic restarts discard session state and may interrupt interactive commands, even outside debugging.",
+          "description": "Editor Services may restart automatically; ordinary terminal and child pwsh instances generate alerts only. An editor restart can interrupt running commands.",
           "scope": "machine"
         },
         "frenchexdev.powershellWatchdog.sampleIntervalSeconds": {

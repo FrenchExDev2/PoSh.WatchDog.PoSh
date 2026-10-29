@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.2.0
+
+- Monitor ordinary pwsh terminals and their children per VS Code window, independently of Microsoft PowerShell activation.
+- Display process count, total private memory, readable states and explicit partial measurements.
+- Evaluate thresholds and warning episodes independently for each process; keep ordinary processes alert-only.
+- Preserve verified Editor Services restart, debugger deferral, cooldown and quota protections.
+- Qualify nested process ownership, process exit/removal and peer-window exclusion in installed-VSIX scenarios.
+
 ## 0.1.0
 
 - Initial Windows Desktop memory watchdog with window-specific session association.
