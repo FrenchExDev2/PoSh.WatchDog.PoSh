@@ -1,15 +1,14 @@
 'use strict';
 
 const vscode = require('vscode');
-const { GiB } = require('./policy');
 const { readMachinePolicy } = require('./configuration');
-const { resolveSession, WatchdogError } = require('./session');
-const { collect } = require('./collector');
+const { WatchdogError } = require('./session');
+const { WindowProcessObserver } = require('./observer');
+const { describeStatus } = require('./presentation');
 const { Journal } = require('./journal');
 const { WatchdogController } = require('./controller');
 
 const section = 'frenchexdev.powershellWatchdog';
-const formatMemory = (bytes) => `${(bytes / GiB).toFixed(2)} GiB`;
 
 function readPolicy() {
   const configuration = vscode.workspace.getConfiguration(section);
@@ -33,16 +32,11 @@ function activate(context) {
   const debugSessions = new Set();
   if (vscode.debug.activeDebugSession?.type.toLowerCase() === 'powershell') debugSessions.add(vscode.debug.activeDebugSession.id);
   let controller;
+  const observer = new WindowProcessObserver(vscode);
   const update = (snapshot) => {
-    const memory = snapshot.sample ? formatMemory(snapshot.sample.privateBytes) : 'unknown';
-    status.text = `$(pulse) PS ${memory} · ${snapshot.state} · ${snapshot.mode}`;
-    status.tooltip = [snapshot.detail, `Mode: ${snapshot.mode}`,
-      `Private committed: ${memory}`,
-      `Resident: ${snapshot.sample ? formatMemory(snapshot.sample.workingSetBytes) : 'unknown'}`,
-      `Session: ${snapshot.lastValid ? `PID ${snapshot.lastValid.pid}, created ${snapshot.lastValid.createdAt}` : 'none'}`,
-      `Last valid sample: ${snapshot.sampleAgeSeconds === null ? 'never' : `${snapshot.sampleAgeSeconds.toFixed(0)} seconds ago`}`,
-      'Automatic restart discards session state and may interrupt an interactive command.',
-      snapshot.journalError || '', 'Click for actions and diagnostics.'].filter(Boolean).join('\n');
+    const display = describeStatus(snapshot);
+    status.text = display.text;
+    status.tooltip = display.tooltip;
     status.backgroundColor = ['error', 'suspended', 'ambiguous', 'unsupported'].includes(snapshot.state) ?
       new vscode.ThemeColor('statusBarItem.errorBackground') :
       ['warning', 'confirmed'].includes(snapshot.state) ? new vscode.ThemeColor('statusBarItem.warningBackground') : undefined;
@@ -54,11 +48,11 @@ function activate(context) {
     }).catch(() => {});
   };
   controller = new WatchdogController({
-    resolve: () => {
+    observe: (milliseconds, signal) => {
       const problem = environmentProblem();
       if (problem) throw new WatchdogError('unsupported', problem);
-      return resolveSession(vscode);
-    }, collect,
+      return observer.observe(milliseconds, signal);
+    },
     commands: () => vscode.commands.getCommands(true),
     restart: () => vscode.commands.executeCommand('PowerShell.RestartSession'),
     debugging: () => debugSessions.size > 0,
@@ -89,7 +83,7 @@ function activate(context) {
   register('restart', async () => {
     if (environmentProblem()) return void vscode.window.showWarningMessage(environmentProblem());
     const answer = await vscode.window.showWarningMessage(
-      'Restart this window’s PowerShell session? Variables, modules and session state will be lost; a running command may be interrupted.',
+      'Restart this window’s Editor Services session? Ordinary pwsh terminals keep running. Variables, modules and editor session state will be lost; a running editor command may be interrupted.',
       { modal: true }, 'Restart');
     if (answer === 'Restart' && !await controller.manualRestart()) void vscode.window.showWarningMessage('Restart did not complete. Consult Watchdog diagnostics.');
   });
@@ -98,7 +92,8 @@ function activate(context) {
     const document = await vscode.workspace.openTextDocument({ language: 'json', content: JSON.stringify({
       ...snapshot, environment: { vscode: vscode.version, app: vscode.env.appName, platform: process.platform,
         remote: vscode.env.remoteName || null, powershellExtension: vscode.extensions.getExtension('ms-vscode.powershell')?.packageJSON.version || null },
-      limitations: ['Interactive command activity is unknown.', 'Only ms-vscode.powershell 2026.1.2 launch artifacts are supported.',
+      limitations: ['Interactive command activity is unknown.', 'Ordinary terminal and child pwsh processes generate alerts; automatic restart is limited to verified Editor Services.',
+        'Editor Services automatic restart association supports ms-vscode.powershell 2026.1.2; other pwsh measurement does not require it.',
         'Stable and Insiders qualification results are recorded separately in QUALIFICATION.md.'],
     }, null, 2) });
     await vscode.window.showTextDocument(document, { preview: true });

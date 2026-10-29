@@ -1,4 +1,5 @@
 node_modules/**
+.github/**
 test/**
 skills/**
 .sandbox/**
@@ -9,5 +10,7 @@ package-lock.json
 AGENTS.md
 CLAUDE.md
 SKILLS.md
+RELEASING.md
 .gitignore
+.gitattributes
 .vscodeignore

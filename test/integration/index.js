@@ -27,10 +27,11 @@ exports.run = async () => {
     powershellExtension: null, checks: [], observations: {},
   };
   let ordinary;
+  let childPid;
   try {
     const extension = vscode.extensions.getExtension('FrenchExDev.powershell-watchdog');
     assert.ok(extension, 'VSIX must be installed; the product is not an extensionDevelopmentPath.');
-    assert.equal(extension.packageJSON.version, '0.1.0');
+    assert.equal(extension.packageJSON.version, '0.2.0');
     const api = await extension.activate();
     if (reopening) {
       await api.sampleNow();
@@ -45,6 +46,29 @@ exports.run = async () => {
     const powershell = vscode.extensions.getExtension('ms-vscode.powershell');
     assert.ok(powershell);
     report.powershellExtension = powershell.packageJSON.version;
+    const quotePowerShell = (value) => `'${value.replace(/'/g, "''")}'`;
+    ordinary = vscode.window.createTerminal({ name: 'Watchdog sandbox ordinary PowerShell', shellPath: process.env.WATCHDOG_TEST_PWSH,
+      shellArgs: ['-NoLogo', '-NoProfile'] });
+    const ordinaryPid = await ordinary.processId;
+    await until(async () => {
+      await api.sampleNow();
+      return api.getSnapshot().processes.some((entry) => entry.pid === ordinaryPid && entry.kind === 'terminal');
+    }, 'ordinary pwsh measurement before explicitly activating Microsoft PowerShell');
+    assert.equal(api.getSnapshot().state, 'normal');
+    report.checks.push('An ordinary pwsh terminal is measured without explicitly starting Editor Services.');
+    const childPidPath = path.join(shared, `${id}.child.pid`);
+    ordinary.sendText(`$global:WatchdogSandboxChild = Start-Process -FilePath ${quotePowerShell(process.env.WATCHDOG_TEST_PWSH)} -ArgumentList '-NoLogo','-NoProfile','-NonInteractive','-Command','Start-Sleep -Seconds 120' -NoNewWindow -PassThru; $global:WatchdogSandboxChild.Id | Set-Content -LiteralPath ${quotePowerShell(childPidPath)}`);
+    childPid = await until(async () => {
+      try { return Number((await fs.readFile(childPidPath, 'utf8')).trim()) || null; } catch { return null; }
+    }, 'owned nested pwsh PID');
+    await until(async () => {
+      await api.sampleNow();
+      return api.getSnapshot().processes.some((entry) => entry.pid === childPid && entry.kind === 'child' && entry.rootPid === ordinaryPid);
+    }, 'nested pwsh process attributed to its own terminal');
+    ordinary.sendText('if ($global:WatchdogSandboxChild -and !$global:WatchdogSandboxChild.HasExited) { $global:WatchdogSandboxChild.Kill(); $null = $global:WatchdogSandboxChild.WaitForExit(5000) }');
+    await until(async () => { await api.sampleNow(); return !api.getSnapshot().processes.some((entry) => entry.pid === childPid); }, 'exited nested pwsh removed');
+    childPid = null;
+    report.checks.push('Nested pwsh ownership is measured and exited child processes disappear from the inventory.');
     // Only this test driver starts a session. The installed watchdog never activates PowerShell.
     await powershell.activate();
     const document = await vscode.workspace.openTextDocument(path.join(vscode.workspace.workspaceFolders[0].uri.fsPath, 'sample.ps1'));
@@ -61,9 +85,6 @@ exports.run = async () => {
     const config = vscode.workspace.getConfiguration('frenchexdev.powershellWatchdog');
     await config.update('warningPrivateGiB', (first.privateBytes + 64 * 1024 ** 2) / 1024 ** 3, vscode.ConfigurationTarget.Global);
     await config.update('restartPrivateGiB', (first.privateBytes + 96 * 1024 ** 2) / 1024 ** 3, vscode.ConfigurationTarget.Global);
-    ordinary = vscode.window.createTerminal({ name: 'Watchdog sandbox unrelated PowerShell', shellPath: process.env.WATCHDOG_TEST_PWSH,
-      shellArgs: ['-NoLogo', '-NoProfile'] });
-    const ordinaryPid = await ordinary.processId;
     assert.notEqual(ordinaryPid, first.pid);
     ordinary.sendText('$global:WatchdogOrdinaryAllocation = [byte[]]::new(32MB)');
     // Bounded pressure, 192 MiB in each of two Editor Services sessions. No host saturation is attempted.
@@ -86,7 +107,9 @@ exports.run = async () => {
     }, 'other isolated window under memory pressure');
     assert.notEqual(first.pid, peer.pid);
     assert.notEqual(high.sample.pid, peer.ordinaryPid);
-    report.checks.push('Two isolated windows measured different sessions while ordinary PowerShell consoles coexisted.');
+    assert.equal(api.getSnapshot().processes.some((entry) => entry.pid === peer.pid || entry.pid === peer.ordinaryPid), false);
+    assert.ok(api.getSnapshot().processes.some((entry) => entry.pid === ordinaryPid));
+    report.checks.push('Each window measures its own Editor Services and ordinary terminal while excluding the other window’s processes.');
 
     if (id === 'A') {
       const debugScript = path.join(vscode.workspace.workspaceFolders[0].uri.fsPath, 'debug.ps1');
@@ -126,6 +149,17 @@ exports.run = async () => {
       await fs.writeFile(path.join(shared, 'B.verified'), 'ok');
     }
 
+    ordinary.sendText('$global:WatchdogOrdinaryAllocation = [byte[]]::new(192MB); for ($i = 0; $i -lt $global:WatchdogOrdinaryAllocation.Length; $i += 4096) { $global:WatchdogOrdinaryAllocation[$i] = 1 }');
+    const ordinaryHigh = await until(async () => {
+      await api.sampleNow();
+      return api.getSnapshot().processes.find((entry) => entry.pid === ordinaryPid && entry.state === 'confirmed');
+    }, 'ordinary pwsh above threshold without restarting Editor Services');
+    assert.equal(api.getSnapshot().automaticRestarts, id === 'A' ? 1 : 0);
+    assert.equal(api.getSnapshot().sample.pid, id === 'A' ? report.observations.replacement.pid : first.pid);
+    assert.equal(ordinaryHigh.automaticRestart, false);
+    report.observations.ordinaryHigh = ordinaryHigh;
+    report.checks.push('A high-memory ordinary pwsh produces per-process warnings without restarting the editor session or closing that terminal.');
+
     await vscode.commands.executeCommand('powershellWatchdog.disable');
     await until(() => api.getSnapshot().policy.enabled === false, 'disable user setting');
     assert.equal(vscode.workspace.getConfiguration('frenchexdev.powershellWatchdog').inspect('enabled').globalValue, false);
@@ -163,6 +197,10 @@ exports.run = async () => {
     report.stack = error.stack;
     throw error;
   } finally {
+    if (childPid && ordinary) {
+      ordinary.sendText('if ($global:WatchdogSandboxChild -and !$global:WatchdogSandboxChild.HasExited) { $global:WatchdogSandboxChild.Kill(); $null = $global:WatchdogSandboxChild.WaitForExit(5000) }');
+      await sleep(1000);
+    }
     ordinary?.dispose();
     await fs.writeFile(output, JSON.stringify(report, null, 2));
   }

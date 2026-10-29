@@ -1,0 +1,169 @@
+name: Test and publish
+
+on:
+  push:
+    branches: [develop]
+    tags: ['v[0-9]*']
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: publish-${{ github.ref }}
+  cancel-in-progress: false
+
+defaults:
+  run:
+    shell: pwsh
+
+jobs:
+  build:
+    runs-on: windows-latest
+    timeout-minutes: 15
+    outputs:
+      version: ${{ steps.metadata.outputs.version }}
+      vsix: ${{ steps.metadata.outputs.vsix }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          persist-credentials: false
+
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7
+        with:
+          node-version: '22'
+          cache: npm
+
+      - name: Verify release version
+        id: metadata
+        env:
+          RELEASE_TAG: ${{ github.ref_type == 'tag' && github.ref_name || '' }}
+        run: |
+          # Objective: Require matching manifest, lockfile and stable release tag versions.
+          $ErrorActionPreference = 'Stop'
+          if ($PSVersionTable.PSEdition -ne 'Core' -or $PSVersionTable.PSVersion -lt [version]'7.6') {
+            throw 'PowerShell Core 7.6 or later is required.'
+          }
+          $manifest = Get-Content package.json -Raw | ConvertFrom-Json
+          $lock = Get-Content package-lock.json -Raw | ConvertFrom-Json -AsHashtable
+          $version = $manifest.version
+          if ($version -cne $lock.version -or $version -cne $lock.packages[''].version) {
+            throw 'package.json and package-lock.json versions differ.'
+          }
+          if ($version -notmatch '^\d+\.\d+\.\d+$') {
+            throw 'This workflow publishes stable versions only.'
+          }
+          if ($env:RELEASE_TAG -and $env:RELEASE_TAG -cne "v$version") {
+            throw "Tag $env:RELEASE_TAG does not match package version $version."
+          }
+          "version=$version" >> $env:GITHUB_OUTPUT
+          "vsix=powershell-watchdog-$version.vsix" >> $env:GITHUB_OUTPUT
+
+      - name: Install locked development tools
+        run: |
+          # Objective: Install the tools locked for this commit without lifecycle scripts.
+          npm ci --ignore-scripts
+
+      - name: Run unit tests
+        run: |
+          # Objective: Check policy and ownership behavior before packaging the release.
+          node --test --test-reporter=tap test/*.test.js
+
+      - name: Package and hash
+        env:
+          VSIX_NAME: ${{ steps.metadata.outputs.vsix }}
+        run: |
+          # Objective: Build one VSIX and record its SHA-256 for publication and download.
+          $ErrorActionPreference = 'Stop'
+          $PSNativeCommandUseErrorActionPreference = $true
+          New-Item -ItemType Directory -Path dist -Force | Out-Null
+          $path = Join-Path dist $env:VSIX_NAME
+          node node_modules/@vscode/vsce/vsce package --no-dependencies --out $path
+          $hash = (Get-FileHash -LiteralPath $path -Algorithm SHA256).Hash.ToLowerInvariant()
+          "$hash  $env:VSIX_NAME" | Set-Content -LiteralPath "$path.sha256" -Encoding utf8NoBOM
+
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
+        with:
+          name: watchdog-${{ steps.metadata.outputs.version }}
+          path: |
+            dist/${{ steps.metadata.outputs.vsix }}
+            dist/${{ steps.metadata.outputs.vsix }}.sha256
+          if-no-files-found: error
+          retention-days: 30
+
+  publish:
+    if: github.ref_type == 'tag' && startsWith(github.ref_name, 'v')
+    needs: build
+    environment: release
+    runs-on: windows-latest
+    timeout-minutes: 15
+    permissions:
+      contents: write
+      id-token: write
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          persist-credentials: false
+
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7
+        with:
+          node-version: '22'
+          cache: npm
+
+      - name: Install locked publishing tools
+        run: |
+          # Objective: Install the exact vsce version with OIDC publishing support.
+          npm ci --ignore-scripts
+
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8
+        with:
+          name: watchdog-${{ needs.build.outputs.version }}
+          path: dist
+
+      - name: Verify package integrity
+        env:
+          VSIX_NAME: ${{ needs.build.outputs.vsix }}
+        run: |
+          # Objective: Publish the exact VSIX produced by the successful build job.
+          $ErrorActionPreference = 'Stop'
+          $path = Join-Path dist $env:VSIX_NAME
+          $expected = ((Get-Content -LiteralPath "$path.sha256" -Raw).Trim() -split '\s+')[0]
+          $actual = (Get-FileHash -LiteralPath $path -Algorithm SHA256).Hash.ToLowerInvariant()
+          if ($expected -cne $actual) { throw 'VSIX SHA-256 mismatch.' }
+
+      - name: Publish to Visual Studio Marketplace
+        env:
+          VSIX_NAME: ${{ needs.build.outputs.vsix }}
+        run: |
+          # Objective: Exchange GitHub's identity for a short-lived Marketplace publishing credential.
+          node node_modules/@vscode/vsce/vsce publish --oidc --packagePath "dist/$env:VSIX_NAME" --skip-duplicate
+
+      - name: Attach package to GitHub release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_TAG: ${{ github.ref_name }}
+          VSIX_NAME: ${{ needs.build.outputs.vsix }}
+        run: |
+          # Objective: Create the release for the existing tag and attach its VSIX and checksum.
+          $ErrorActionPreference = 'Stop'
+          $PSNativeCommandUseErrorActionPreference = $true
+          $headers = @{ Authorization = "Bearer $env:GH_TOKEN"; Accept = 'application/vnd.github+json' }
+          $tag = [Uri]::EscapeDataString($env:RELEASE_TAG)
+          try {
+            $release = Invoke-RestMethod -Uri "$env:GITHUB_API_URL/repos/$env:GITHUB_REPOSITORY/releases/tags/$tag" -Headers $headers
+          } catch {
+            if ([int]$_.Exception.Response.StatusCode -ne 404) { throw }
+            gh release create $env:RELEASE_TAG "dist/$env:VSIX_NAME" "dist/$env:VSIX_NAME.sha256" --verify-tag --title "PowerShell Memory Watchdog $env:RELEASE_TAG" --generate-notes
+            exit 0
+          }
+          foreach ($path in @("dist/$env:VSIX_NAME", "dist/$env:VSIX_NAME.sha256")) {
+            $name = Split-Path $path -Leaf
+            $asset = @($release.assets | Where-Object name -CEQ $name)
+            if ($asset.Count) {
+              $digest = 'sha256:' + (Get-FileHash -LiteralPath $path -Algorithm SHA256).Hash.ToLowerInvariant()
+              if ($asset[0].digest -cne $digest) { throw "Existing release asset differs: $name" }
+            } else {
+              gh release upload $env:RELEASE_TAG $path
+            }
+          }

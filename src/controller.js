@@ -12,6 +12,10 @@ class WatchdogController {
     this.detail = 'Waiting for a session.';
     this.sample = null;
     this.lastValid = null;
+    this.inventory = null;
+    this.lastInventory = null;
+    this.processEngines = new Map();
+    this.processState = 'normal';
     this.restartOutcome = null;
     this.busy = false;
     this.disposed = false;
@@ -25,7 +29,10 @@ class WatchdogController {
     return {
       state: this.state, detail: this.detail, mode: this.engine.policy.mode,
       sample: this.sample, lastValid: this.lastValid,
+      processes: this.inventory?.processes || [], inventory: this.inventory,
+      lastInventory: this.lastInventory,
       sampleAgeSeconds: this.lastValid ? Math.max(0, (this.now() - Date.parse(this.lastValid.measuredAt)) / 1000) : null,
+      processSampleAgeSeconds: this.lastInventory?.measuredAt ? Math.max(0, (this.now() - Date.parse(this.lastInventory.measuredAt)) / 1000) : null,
       consecutiveSamples: this.engine.count, policy: { ...this.engine.policy },
       restartOutcome: this.restartOutcome, automaticRestarts: this.engine.restarts.length,
       cooldownUntil: this.engine.cooldownUntil, suspendUntil: this.engine.suspendUntil,
@@ -36,6 +43,14 @@ class WatchdogController {
 
   publish(state, detail) {
     if (this.disposed) return;
+    if (this.inventory?.processes.length && ['normal', 'waiting'].includes(state)) {
+      state = this.processState;
+      detail = `${this.inventory.processes.length} pwsh process(es) measured in this window. ${detail}`;
+    }
+    if (['cooldown', 'deferred'].includes(state) && ['warning', 'confirmed'].includes(this.processState)) {
+      state = this.processState;
+      detail = `Another pwsh process exceeds its memory threshold. ${detail}`;
+    }
     this.state = state;
     this.detail = detail;
     this.dependencies.onChange?.(this.snapshot());
@@ -50,6 +65,10 @@ class WatchdogController {
       sample: this.sample, warningPrivateGiB: this.engine.policy.warningPrivateGiB,
       restartPrivateGiB: this.engine.policy.restartPrivateGiB,
       mode: this.engine.policy.mode, consecutiveSamples: this.engine.count,
+      ...(this.inventory ? { processCount: this.inventory.processes.length, complete: this.inventory.complete,
+        processes: [...this.inventory.processes].sort((left, right) => right.privateBytes - left.privateBytes).slice(0, 20),
+        omittedProcesses: Math.max(0, this.inventory.processes.length - 20),
+        collectionErrors: this.inventory.errors.length } : {}),
     });
   }
 
@@ -57,6 +76,8 @@ class WatchdogController {
     this.revision++;
     this.engine.configure(policy);
     this.sample = null;
+    this.inventory = null;
+    this.processEngines.clear();
     const errors = validatePolicy(policy);
     this.publish(errors.length ? 'error' : policy.enabled ? 'waiting' : 'disabled',
       errors.length ? errors.join(' ') : policy.enabled ? 'Policy changed; fresh measurement required.' : 'Monitoring disabled.');
@@ -65,6 +86,8 @@ class WatchdogController {
   async suspend(minutes) {
     this.revision++;
     this.engine.suspend(this.now() + minutes * 60_000);
+    this.inventory = null;
+    this.processEngines.clear();
     await this.persist();
     this.publish('suspended', `Monitoring suspended for ${minutes} minutes.`);
   }
@@ -72,12 +95,14 @@ class WatchdogController {
   async resume() {
     this.revision++;
     this.engine.resume();
+    this.processEngines.clear();
     await this.persist();
     this.publish('waiting', 'Resumed; fresh measurements required.');
   }
 
   async measure() {
     const milliseconds = this.engine.policy.collectTimeoutSeconds * 1000;
+    if (this.dependencies.observe) return withDeadline(() => this.dependencies.observe(milliseconds, this.abort.signal), milliseconds, this.abort.signal);
     const started = this.now();
     const target = await withDeadline(() => this.dependencies.resolve(), milliseconds, this.abort.signal);
     if (!target?.pid) return { target, sample: null };
@@ -85,6 +110,34 @@ class WatchdogController {
     if (remaining <= 0) throw new Error('Collection deadline exceeded.');
     const sample = await this.dependencies.collect(target, remaining, this.abort.signal);
     return { target, sample };
+  }
+
+  updateInventory(inventory) {
+    if (!inventory) return;
+    const live = new Set();
+    const warnings = [];
+    this.processState = 'normal';
+    for (const sample of inventory.processes) {
+      if (sample.automaticRestart) continue;
+      const key = identityKey(sample);
+      live.add(key);
+      let policy = this.processEngines.get(key);
+      if (!policy) {
+        policy = new PolicyEngine({ ...this.engine.policy, mode: 'notifyOnly' });
+        this.processEngines.set(key, policy);
+      }
+      const decision = policy.evaluate(sample, this.now());
+      sample.state = decision.state;
+      sample.consecutiveSamples = policy.count;
+      if (decision.notifyWarning) warnings.push(sample.pid);
+      if (decision.state === 'confirmed') this.processState = 'confirmed';
+      else if (decision.state === 'warning' && this.processState !== 'confirmed') this.processState = 'warning';
+    }
+    for (const key of this.processEngines.keys()) if (!live.has(key)) this.processEngines.delete(key);
+    this.inventory = inventory;
+    if (inventory.complete || inventory.processes.length) this.lastInventory = inventory;
+    if (warnings.length) this.dependencies.notice?.('warning',
+      `Private memory warning for pwsh PID ${warnings.slice(0, 8).join(', ')}${warnings.length > 8 ? ` and ${warnings.length - 8} more` : ''}. Ordinary processes are monitored with alerts only.`);
   }
 
   async tick() {
@@ -96,16 +149,21 @@ class WatchdogController {
       if (invalid.length || !this.engine.policy.enabled || this.engine.suspendUntil > this.now()) {
         const decision = this.engine.evaluate(null, this.now());
         this.sample = null;
+        this.inventory = null;
+        this.processEngines.clear();
         this.publish(decision.state, decision.detail);
         return this.snapshot();
       }
       const measured = await this.measure();
       if (this.disposed || revision !== this.revision) return this.snapshot();
+      this.updateInventory(measured.inventory);
       this.sample = measured.sample;
       if (!measured.sample) {
         this.engine.resetSeries();
-        this.publish(measured.target?.state || 'waiting', measured.target?.detail || 'Waiting for a session.');
-        await this.record('No associated session.');
+        this.publish(measured.target?.state || 'waiting', measured.inventory?.processes.length ?
+          'Terminal and child pwsh processes use memory alerts; no Editor Services restart target is active.' :
+          measured.target?.detail || 'Waiting for a session.');
+        await this.record(measured.inventory ? 'Window pwsh processes measured; no verified Editor Services restart target.' : 'No associated session.');
         return this.snapshot();
       }
       this.lastValid = measured.sample;
@@ -114,12 +172,14 @@ class WatchdogController {
       this.publish(decision.state, decision.detail);
       await this.persist();
       await this.record(decision.detail);
-      if (decision.notifyWarning) this.dependencies.notice?.('warning', 'PowerShell private memory exceeds the warning threshold.');
+      if (decision.notifyWarning) this.dependencies.notice?.('warning', `Editor Services pwsh PID ${measured.sample.pid} exceeds the private memory warning threshold.`);
       if (decision.state === 'suspended' && priorState !== 'suspended') this.dependencies.notice?.('warning', decision.detail);
       if (decision.restart && revision === this.revision) await this.restart(measured, true);
     } catch (error) {
       if (this.disposed || revision !== this.revision) return this.snapshot();
       this.sample = null;
+      this.inventory = null;
+      this.processEngines.clear();
       this.engine.resetSeries();
       const state = ['ambiguous', 'unsupported'].includes(error.code) ? error.code : 'error';
       const safeMessage = { ambiguous: 'Session association is ambiguous; no action allowed.',
@@ -139,6 +199,7 @@ class WatchdogController {
     this.busy = true;
     try {
       const measured = await this.measure();
+      this.updateInventory(measured.inventory);
       if (!measured.sample) return false;
       return await this.restart(measured, false);
     } catch {
@@ -194,6 +255,7 @@ class WatchdogController {
         try {
           const next = await withDeadline(() => this.measure(), Math.max(1, deadline - this.now()), this.abort.signal);
           if (next.sample && identityKey(next.sample) !== identityKey(previous.sample)) {
+            this.updateInventory(next.inventory);
             this.sample = next.sample;
             this.lastValid = next.sample;
             outcome = 'succeeded';
