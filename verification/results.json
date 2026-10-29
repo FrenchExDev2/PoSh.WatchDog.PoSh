@@ -1,0 +1,208 @@
+{
+  "date": "2026-10-29",
+  "version": "0.1.0",
+  "environment": {
+    "architecture": "x64",
+    "os": "Windows 11 Pro",
+    "version": "10.0.26300",
+    "powershell": "7.6.9",
+    "powershellExtension": "2026.1.2",
+    "node": "26.8.1"
+  },
+  "unitTests": {
+    "command": "node --test --test-reporter=tap test/*.test.js",
+    "total": 31,
+    "failed": 0,
+    "evidence": "QuietCli RECORD 2b7a08536fbc",
+    "durationMs": 760.7802,
+    "passed": 31
+  },
+  "integration": [
+    {
+      "testedVSIXSha256": "89ee24323edf05211632ffc5481fd708d56eb7756dbec787003477ac48122957",
+      "allocationMiB": {
+        "editorServicesPerWindow": 192,
+        "ordinaryPerWindow": 32,
+        "windows": 2
+      },
+      "app": "Visual Studio Code",
+      "windows": [
+        {
+          "high": {
+            "workingSetBytes": 391696384,
+            "createdAt": "2026-10-28T23:53:46.6051241Z",
+            "measuredAt": "2026-10-28T23:54:04.9243384Z",
+            "pid": 26944,
+            "privateBytes": 274845696,
+            "powerShellVersion": "7.6.9"
+          },
+          "initial": {
+            "privateBytes": 66211840,
+            "createdAt": "2026-10-28T23:53:46.6051241Z",
+            "workingSetBytes": 177725440,
+            "powerShellVersion": "7.6.9",
+            "pid": 26944,
+            "measuredAt": "2026-10-28T23:53:53.6419485Z"
+          },
+          "id": "A",
+          "replacement": {
+            "createdAt": "2026-10-28T23:54:15.7576301Z",
+            "workingSetBytes": 142204928,
+            "measuredAt": "2026-10-28T23:54:20.7822809Z",
+            "powerShellVersion": "7.6.9",
+            "privateBytes": 52092928,
+            "pid": 35792
+          },
+          "reopened": true,
+          "checks": [
+            "Installed VSIX activated and measured the local Editor Services session.",
+            "notifyOnly retained the session during three measured high-memory samples.",
+            "Two isolated windows measured different sessions while ordinary PowerShell consoles coexisted.",
+            "A real PowerShell debugger deferred automatic restart until fresh post-debug samples.",
+            "Automatic restart replaced only window A session and entered cooldown.",
+            "Enable/disable persist as user settings; workspace mode override is ignored.",
+            "Diagnostic view contains bounded measurements without command lines or script content.",
+            "A fresh editor process preserved disabled monitoring and the per-workspace restart quota."
+          ],
+          "success": true
+        },
+        {
+          "high": {
+            "workingSetBytes": 393658368,
+            "createdAt": "2026-10-28T23:53:46.5020621Z",
+            "privateBytes": 276094976,
+            "measuredAt": "2026-10-28T23:54:03.3441819Z",
+            "powerShellVersion": "7.6.9",
+            "pid": 17796
+          },
+          "initial": {
+            "createdAt": "2026-10-28T23:53:46.5020621Z",
+            "powerShellVersion": "7.6.9",
+            "privateBytes": 64557056,
+            "measuredAt": "2026-10-28T23:53:56.0589067Z",
+            "pid": 17796,
+            "workingSetBytes": 179179520
+          },
+          "id": "B",
+          "replacement": null,
+          "reopened": true,
+          "checks": [
+            "Installed VSIX activated and measured the local Editor Services session.",
+            "notifyOnly retained the session during three measured high-memory samples.",
+            "Two isolated windows measured different sessions while ordinary PowerShell consoles coexisted.",
+            "Window B session remained unchanged after window A automatic restart.",
+            "Enable/disable persist as user settings; workspace mode override is ignored.",
+            "Diagnostic view contains bounded measurements without command lines or script content.",
+            "A fresh editor process preserved disabled monitoring and the per-workspace restart quota."
+          ],
+          "success": true
+        }
+      ],
+      "vscode": "1.144.0"
+    },
+    {
+      "testedVSIXSha256": "89ee24323edf05211632ffc5481fd708d56eb7756dbec787003477ac48122957",
+      "allocationMiB": {
+        "editorServicesPerWindow": 192,
+        "ordinaryPerWindow": 32,
+        "windows": 2
+      },
+      "app": "Visual Studio Code - Insiders",
+      "windows": [
+        {
+          "high": {
+            "createdAt": "2026-10-28T23:53:46.5320833Z",
+            "powerShellVersion": "7.6.9",
+            "measuredAt": "2026-10-28T23:54:03.9361734Z",
+            "pid": 32424,
+            "privateBytes": 274272256,
+            "workingSetBytes": 391528448
+          },
+          "initial": {
+            "powerShellVersion": "7.6.9",
+            "measuredAt": "2026-10-28T23:53:53.7666502Z",
+            "workingSetBytes": 177704960,
+            "pid": 32424,
+            "privateBytes": 65306624,
+            "createdAt": "2026-10-28T23:53:46.5320833Z"
+          },
+          "id": "A",
+          "replacement": {
+            "measuredAt": "2026-10-28T23:54:22.7557599Z",
+            "createdAt": "2026-10-28T23:54:15.0571358Z",
+            "privateBytes": 62439424,
+            "pid": 22140,
+            "workingSetBytes": 158961664,
+            "powerShellVersion": "7.6.9"
+          },
+          "reopened": true,
+          "checks": [
+            "Installed VSIX activated and measured the local Editor Services session.",
+            "notifyOnly retained the session during three measured high-memory samples.",
+            "Two isolated windows measured different sessions while ordinary PowerShell consoles coexisted.",
+            "A real PowerShell debugger deferred automatic restart until fresh post-debug samples.",
+            "Automatic restart replaced only window A session and entered cooldown.",
+            "Enable/disable persist as user settings; workspace mode override is ignored.",
+            "Diagnostic view contains bounded measurements without command lines or script content.",
+            "A fresh editor process preserved disabled monitoring and the per-workspace restart quota."
+          ],
+          "success": true
+        },
+        {
+          "high": {
+            "workingSetBytes": 391962624,
+            "pid": 21520,
+            "powerShellVersion": "7.6.9",
+            "measuredAt": "2026-10-28T23:54:02.2021343Z",
+            "privateBytes": 274976768,
+            "createdAt": "2026-10-28T23:53:46.8512505Z"
+          },
+          "initial": {
+            "measuredAt": "2026-10-28T23:53:53.8925241Z",
+            "workingSetBytes": 178089984,
+            "pid": 21520,
+            "powerShellVersion": "7.6.9",
+            "privateBytes": 65843200,
+            "createdAt": "2026-10-28T23:53:46.8512505Z"
+          },
+          "id": "B",
+          "replacement": null,
+          "reopened": true,
+          "checks": [
+            "Installed VSIX activated and measured the local Editor Services session.",
+            "notifyOnly retained the session during three measured high-memory samples.",
+            "Two isolated windows measured different sessions while ordinary PowerShell consoles coexisted.",
+            "Window B session remained unchanged after window A automatic restart.",
+            "Enable/disable persist as user settings; workspace mode override is ignored.",
+            "Diagnostic view contains bounded measurements without command lines or script content.",
+            "A fresh editor process preserved disabled monitoring and the per-workspace restart quota."
+          ],
+          "success": true
+        }
+      ],
+      "vscode": "1.145.0-insider"
+    }
+  ],
+  "artifact": {
+    "sha256": "a669b67698a65caf1d60743782d5df935048f6c48555a13916536edc2bdc5289",
+    "path": "dist/powershell-watchdog-0.1.0.vsix",
+    "runtimeHashes": {
+      "scripts/Measure-Session.ps1": "95e97a3635270ba4f1601c071cd983dda8e07ba9e3f7ae6f6b9b3a54721bf3d8",
+      "src/collector.js": "89f3938e1ab89c9f50b3d934ee55a44d3b4c1e2217073972ffcea087f87a1214",
+      "src/configuration.js": "59b454f481b148a0ec4f87ad8d45dac04b316bae9d388d805285146543887f35",
+      "src/controller.js": "339d95a6964212f3305cabf7b85b42f35bbae291c863409311a42143b0a49c72",
+      "src/extension.js": "a8cb8d06b6fddae56c768f85584c37becdec31b9b48025f90ad9cf196dfc7b8b",
+      "src/journal.js": "6eb10adc0f32ab08d25450a15156ef7895440192dfb66127a2fdcdb94e7bb36a",
+      "src/policy.js": "a4dde024bef13b2da3be5f24b0b45685bbb858aeecaf2c54cbdd21fb6d3fe24e",
+      "src/session.js": "6a97b85476a2389c9d4688b637fe80bbee30d9f28019dc2c66e17f95a92a0ca3"
+    },
+    "bytes": 30789,
+    "files": 16,
+    "runtimeMatchesBothTestedInstallations": true
+  },
+  "limits": [
+    "Only Microsoft PowerShell extension 2026.1.2 is qualified.",
+    "Stabilized attributable memory overhead below 50 MiB is not established.",
+    "Real access-denied, genuinely hung Editor Services, long-duration and shared-profile multi-window scenarios remain unqualified."
+  ]
+}

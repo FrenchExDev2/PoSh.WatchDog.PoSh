@@ -1,0 +1,9 @@
+{
+  "name": "watchdog-integration-driver",
+  "publisher": "FrenchExDev",
+  "version": "0.0.1",
+  "engines": { "vscode": "^1.114.0" },
+  "main": "index.js",
+  "activationEvents": ["onStartupFinished"],
+  "extensionKind": ["ui"]
+}

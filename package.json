@@ -1,0 +1,163 @@
+{
+  "name": "powershell-watchdog",
+  "displayName": "PowerShell Memory Watchdog",
+  "description": "Monitor the current window's PowerShell Editor Services memory on Windows.",
+  "version": "0.1.0",
+  "publisher": "FrenchExDev",
+  "license": "MIT",
+  "engines": {
+    "vscode": "^1.114.0",
+    "node": ">=22"
+  },
+  "categories": [
+    "Other"
+  ],
+  "keywords": [
+    "PowerShell",
+    "memory",
+    "watchdog"
+  ],
+  "main": "./src/extension.js",
+  "extensionKind": [
+    "ui"
+  ],
+  "activationEvents": [
+    "onStartupFinished"
+  ],
+  "capabilities": {
+    "untrustedWorkspaces": {
+      "supported": true
+    },
+    "virtualWorkspaces": {
+      "supported": false
+    }
+  },
+  "scripts": {
+    "test": "node --test test/*.test.js",
+    "package": "vsce package --no-dependencies --allow-missing-repository --out dist/",
+    "test:integration": "node test/run-integration.js"
+  },
+  "contributes": {
+    "commands": [
+      {
+        "command": "powershellWatchdog.enable",
+        "title": "PowerShell Watchdog: Enable"
+      },
+      {
+        "command": "powershellWatchdog.disable",
+        "title": "PowerShell Watchdog: Disable"
+      },
+      {
+        "command": "powershellWatchdog.suspend",
+        "title": "PowerShell Watchdog: Suspend…"
+      },
+      {
+        "command": "powershellWatchdog.resume",
+        "title": "PowerShell Watchdog: Resume"
+      },
+      {
+        "command": "powershellWatchdog.changeMode",
+        "title": "PowerShell Watchdog: Change Mode…"
+      },
+      {
+        "command": "powershellWatchdog.restart",
+        "title": "PowerShell Watchdog: Restart Session…"
+      },
+      {
+        "command": "powershellWatchdog.diagnostics",
+        "title": "PowerShell Watchdog: Show Diagnostics"
+      },
+      {
+        "command": "powershellWatchdog.menu",
+        "title": "PowerShell Watchdog: Show Actions"
+      }
+    ],
+    "configuration": {
+      "title": "PowerShell Watchdog",
+      "properties": {
+        "frenchexdev.powershellWatchdog.enabled": {
+          "type": "boolean",
+          "default": true,
+          "description": "Monitor an already running local PowerShell Editor Services session.",
+          "scope": "machine"
+        },
+        "frenchexdev.powershellWatchdog.mode": {
+          "type": "string",
+          "enum": [
+            "automatic",
+            "notifyOnly"
+          ],
+          "default": "automatic",
+          "description": "Automatic restarts discard session state and may interrupt interactive commands, even outside debugging.",
+          "scope": "machine"
+        },
+        "frenchexdev.powershellWatchdog.sampleIntervalSeconds": {
+          "type": "number",
+          "exclusiveMinimum": 0,
+          "default": 15,
+          "description": "Delay between completed collections, in seconds.",
+          "scope": "machine"
+        },
+        "frenchexdev.powershellWatchdog.warningPrivateGiB": {
+          "type": "number",
+          "exclusiveMinimum": 0,
+          "default": 4,
+          "description": "Private committed memory warning threshold, in GiB.",
+          "scope": "machine"
+        },
+        "frenchexdev.powershellWatchdog.restartPrivateGiB": {
+          "type": "number",
+          "exclusiveMinimum": 0,
+          "default": 8,
+          "description": "Private committed memory restart threshold, in GiB.",
+          "scope": "machine"
+        },
+        "frenchexdev.powershellWatchdog.consecutiveSamples": {
+          "type": "integer",
+          "minimum": 1,
+          "default": 3,
+          "description": "Consecutive valid samples at or above the restart threshold.",
+          "scope": "machine"
+        },
+        "frenchexdev.powershellWatchdog.collectTimeoutSeconds": {
+          "type": "number",
+          "exclusiveMinimum": 0,
+          "default": 3,
+          "description": "Maximum time for session resolution and collection.",
+          "scope": "machine"
+        },
+        "frenchexdev.powershellWatchdog.restartTimeoutSeconds": {
+          "type": "number",
+          "exclusiveMinimum": 0,
+          "default": 45,
+          "description": "Deadline for a measured replacement session, including command execution.",
+          "scope": "machine"
+        },
+        "frenchexdev.powershellWatchdog.cooldownSeconds": {
+          "type": "number",
+          "exclusiveMinimum": 0,
+          "default": 120,
+          "description": "Stabilization delay following a measured replacement session.",
+          "scope": "machine"
+        },
+        "frenchexdev.powershellWatchdog.maxAutomaticRestartsPerHour": {
+          "type": "integer",
+          "minimum": 1,
+          "default": 3,
+          "description": "Maximum automatic restart requests in a rolling hour, retained across reloads.",
+          "scope": "machine"
+        },
+        "frenchexdev.powershellWatchdog.deferWhileDebugging": {
+          "type": "boolean",
+          "default": true,
+          "description": "Defer automatic restart while any PowerShell debug session is active.",
+          "scope": "machine"
+        }
+      }
+    }
+  },
+  "devDependencies": {
+    "@vscode/test-electron": "3.1.0",
+    "@vscode/vsce": "4.1.0"
+  }
+}
