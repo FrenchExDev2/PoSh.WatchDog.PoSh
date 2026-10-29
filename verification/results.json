@@ -1,30 +1,51 @@
-<<<<<<< HEAD
 {
   "date": "2026-10-29",
-  "version": "0.2.0",
-  "scope": "Each VS Code window: terminal, nested and extension-host pwsh processes",
-  "environment": {
-    "node": "26.8.1",
-    "powershellExtensionForEditorRestart": "2026.1.2",
-    "collectorPowerShell": "7.6.9",
-    "os": "Windows 11 Pro",
-    "version": "10.0.26300",
-    "architecture": "x64"
-  },
+  "version": "0.3.0",
+  "scope": "Offline HTML diagnostics for the current local Windows VS Code window.",
   "unitTests": {
-    "command": "node --test --test-reporter=tap test/*.test.js",
-    "total": 47,
-    "failed": 0,
-    "durationMs": 895.571,
-    "evidence": "QuietCli RECORD b5f535e28767",
-    "passed": 47
+    "Tests": 63.0,
+    "Failures": [],
+    "DurationMs": 901.3672,
+    "RecordId": "e9ad2634095d",
+    "Failed": 0.0,
+    "Passed": 63.0
+  },
+  "browser": {
+    "success": true,
+    "sourceBytes": 15728179,
+    "retainedEntries": 13686,
+    "renderMs": 284,
+    "reportBytes": 6790896,
+    "directory": "C:\\code\\FrenchExDev\\FrenchExDev_i2\\VsCode\\FrenchExDev\\FrenchExDev.PoSh.WatchDog.PoSh\\.sandbox\\report-bAku7u",
+    "html": "C:\\code\\FrenchExDev\\FrenchExDev_i2\\VsCode\\FrenchExDev\\FrenchExDev.PoSh.WatchDog.PoSh\\.sandbox\\report-bAku7u\\diagnostic.html",
+    "screenshots": [
+      "desktop.png",
+      "narrow.png"
+    ],
+    "checks": [
+      "Near-15-MiB journal history renders offline with PID reuse, gaps, partial coverage and escaped text.",
+      "Process selection, threshold visibility, pointer readout and event pagination work.",
+      "Desktop and narrow layouts are captured without horizontal overflow.",
+      "Empty history stays readable; no remote request, script error or CSP error was observed."
+    ],
+    "browser": {
+      "protocolVersion": "1.3",
+      "product": "Edg/156.0.4314.50",
+      "revision": "@af2ba23ae0ecf7084d900446fc59d5119dd5fd5e",
+      "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.0.0 Safari/537.36 Edg/156.0.0.0",
+      "jsVersion": "15.6.12.7"
+    }
   },
   "integration": [
     {
       "vscode": "1.144.0",
       "app": "Visual Studio Code",
+      "testedVSIXSha256": "7cbb1145db063be291efa6919e0e1a752e107cca07cbf1dabe06296d938aa556",
       "windows": [
         {
+          "id": "A",
+          "success": true,
+          "reopened": true,
           "checks": [
             "An ordinary pwsh terminal is measured without explicitly starting Editor Services.",
             "Nested pwsh ownership is measured and exited child processes disappear from the inventory.",
@@ -36,59 +57,20 @@
             "A high-memory ordinary pwsh produces per-process warnings without restarting the editor session or closing that terminal.",
             "Enable/disable persist as user settings; workspace mode override is ignored.",
             "Diagnostic view contains bounded measurements without command lines or script content.",
+            "The installed HTML diagnostic command exports this window’s retained journals and process inventory to a standalone local file and requests external opening.",
             "A fresh editor process preserved disabled monitoring and the per-workspace restart quota."
           ],
-          "reopened": true,
-          "high": {
-            "pid": 22944,
-            "createdAt": "2026-10-29T01:51:59.8388262Z",
-            "privateBytes": 270893056,
-            "workingSetBytes": 367255552,
-            "measuredAt": "2026-10-29T01:52:16.3279669Z",
-            "collectorPowerShellVersion": "7.6.9",
-            "rootPid": 22944,
-            "kind": "editorServices",
-            "automaticRestart": true
-          },
-          "replacement": {
-            "pid": 32540,
-            "createdAt": "2026-10-29T01:52:26.41162Z",
-            "privateBytes": 55083008,
-            "workingSetBytes": 147013632,
-            "measuredAt": "2026-10-29T01:52:30.8124344Z",
-            "collectorPowerShellVersion": "7.6.9",
-            "rootPid": 32540,
-            "kind": "editorServices",
-            "automaticRestart": true
-          },
-          "initial": {
-            "pid": 22944,
-            "createdAt": "2026-10-29T01:51:59.8388262Z",
-            "privateBytes": 58163200,
-            "workingSetBytes": 151887872,
-            "measuredAt": "2026-10-29T01:52:07.6138111Z",
-            "collectorPowerShellVersion": "7.6.9",
-            "rootPid": 22944,
-            "kind": "editorServices",
-            "automaticRestart": true
-          },
-          "ordinaryHigh": {
-            "pid": 32156,
-            "createdAt": "2026-10-29T01:51:48.9330757Z",
-            "privateBytes": 278179840,
-            "workingSetBytes": 308899840,
-            "measuredAt": "2026-10-29T01:52:51.0937119Z",
-            "collectorPowerShellVersion": "7.6.9",
-            "rootPid": 32156,
-            "kind": "terminal",
-            "automaticRestart": false,
-            "state": "confirmed",
-            "consecutiveSamples": 3
-          },
-          "success": true,
-          "id": "A"
+          "visualReport": {
+            "path": "c:\\code\\FrenchExDev\\FrenchExDev_i2\\VsCode\\FrenchExDev\\FrenchExDev.PoSh.WatchDog.PoSh\\.sandbox\\run-eBqXJw\\user-A\\User\\workspaceStorage\\dcd110d062aa4f484e2eb5896a56ed70\\FrenchExDev.powershell-watchdog\\diagnostic-reports\\watchdog-2026-10-29T03-46-24-874Z-2a512498-aef7-48d0-b3d3-659b351121c0.html",
+            "bytes": 47155,
+            "retainedEntries": 23,
+            "filesRead": 1
+          }
         },
         {
+          "id": "B",
+          "success": true,
+          "reopened": true,
           "checks": [
             "An ordinary pwsh terminal is measured without explicitly starting Editor Services.",
             "Nested pwsh ownership is measured and exited child processes disappear from the inventory.",
@@ -99,61 +81,27 @@
             "A high-memory ordinary pwsh produces per-process warnings without restarting the editor session or closing that terminal.",
             "Enable/disable persist as user settings; workspace mode override is ignored.",
             "Diagnostic view contains bounded measurements without command lines or script content.",
+            "The installed HTML diagnostic command exports this window’s retained journals and process inventory to a standalone local file and requests external opening.",
             "A fresh editor process preserved disabled monitoring and the per-workspace restart quota."
           ],
-          "reopened": true,
-          "high": {
-            "pid": 30420,
-            "createdAt": "2026-10-29T01:51:58.5485919Z",
-            "privateBytes": 271921152,
-            "workingSetBytes": 369348608,
-            "measuredAt": "2026-10-29T01:52:13.3347534Z",
-            "collectorPowerShellVersion": "7.6.9",
-            "rootPid": 30420,
-            "kind": "editorServices",
-            "automaticRestart": true
-          },
-          "replacement": null,
-          "initial": {
-            "pid": 30420,
-            "createdAt": "2026-10-29T01:51:58.5485919Z",
-            "privateBytes": 58761216,
-            "workingSetBytes": 152670208,
-            "measuredAt": "2026-10-29T01:52:05.5542801Z",
-            "collectorPowerShellVersion": "7.6.9",
-            "rootPid": 30420,
-            "kind": "editorServices",
-            "automaticRestart": true
-          },
-          "ordinaryHigh": {
-            "pid": 24460,
-            "createdAt": "2026-10-29T01:51:49.7112319Z",
-            "privateBytes": 277024768,
-            "workingSetBytes": 305819648,
-            "measuredAt": "2026-10-29T01:52:39.8054901Z",
-            "collectorPowerShellVersion": "7.6.9",
-            "rootPid": 24460,
-            "kind": "terminal",
-            "automaticRestart": false,
-            "state": "confirmed",
-            "consecutiveSamples": 3
-          },
-          "success": true,
-          "id": "B"
+          "visualReport": {
+            "path": "c:\\code\\FrenchExDev\\FrenchExDev_i2\\VsCode\\FrenchExDev\\FrenchExDev.PoSh.WatchDog.PoSh\\.sandbox\\run-eBqXJw\\user-B\\User\\workspaceStorage\\f324e9e3f1f3de712b66c829d3379323\\FrenchExDev.powershell-watchdog\\diagnostic-reports\\watchdog-2026-10-29T03-46-24-824Z-9783ba57-6c67-4587-a172-c18107abc541.html",
+            "bytes": 47313,
+            "retainedEntries": 23,
+            "filesRead": 1
+          }
         }
-      ],
-      "testedVSIXSha256": "62c29ebd5b86f0e2d02965331edd6928ac102d15e632bcaf3dedfdcec2a344d2",
-      "allocationMiB": {
-        "editorServicesPerWindow": 192,
-        "ordinaryPerWindow": 192,
-        "windows": 2
-      }
+      ]
     },
     {
       "vscode": "1.145.0-insider",
       "app": "Visual Studio Code - Insiders",
+      "testedVSIXSha256": "7cbb1145db063be291efa6919e0e1a752e107cca07cbf1dabe06296d938aa556",
       "windows": [
         {
+          "id": "A",
+          "success": true,
+          "reopened": true,
           "checks": [
             "An ordinary pwsh terminal is measured without explicitly starting Editor Services.",
             "Nested pwsh ownership is measured and exited child processes disappear from the inventory.",
@@ -165,59 +113,20 @@
             "A high-memory ordinary pwsh produces per-process warnings without restarting the editor session or closing that terminal.",
             "Enable/disable persist as user settings; workspace mode override is ignored.",
             "Diagnostic view contains bounded measurements without command lines or script content.",
+            "The installed HTML diagnostic command exports this window’s retained journals and process inventory to a standalone local file and requests external opening.",
             "A fresh editor process preserved disabled monitoring and the per-workspace restart quota."
           ],
-          "reopened": true,
-          "high": {
-            "pid": 28420,
-            "createdAt": "2026-10-29T01:52:00.5263239Z",
-            "privateBytes": 271396864,
-            "workingSetBytes": 371998720,
-            "measuredAt": "2026-10-29T01:52:17.0481706Z",
-            "collectorPowerShellVersion": "7.6.9",
-            "rootPid": 28420,
-            "kind": "editorServices",
-            "automaticRestart": true
-          },
-          "replacement": {
-            "pid": 35596,
-            "createdAt": "2026-10-29T01:52:42.7016238Z",
-            "privateBytes": 62312448,
-            "workingSetBytes": 160165888,
-            "measuredAt": "2026-10-29T01:52:51.1630624Z",
-            "collectorPowerShellVersion": "7.6.9",
-            "rootPid": 35596,
-            "kind": "editorServices",
-            "automaticRestart": true
-          },
-          "initial": {
-            "pid": 28420,
-            "createdAt": "2026-10-29T01:52:00.5263239Z",
-            "privateBytes": 63045632,
-            "workingSetBytes": 159940608,
-            "measuredAt": "2026-10-29T01:52:10.4497067Z",
-            "collectorPowerShellVersion": "7.6.9",
-            "rootPid": 28420,
-            "kind": "editorServices",
-            "automaticRestart": true
-          },
-          "ordinaryHigh": {
-            "pid": 32344,
-            "createdAt": "2026-10-29T01:51:50.6520274Z",
-            "privateBytes": 276832256,
-            "workingSetBytes": 305606656,
-            "measuredAt": "2026-10-29T01:53:02.7159164Z",
-            "collectorPowerShellVersion": "7.6.9",
-            "rootPid": 32344,
-            "kind": "terminal",
-            "automaticRestart": false,
-            "state": "confirmed",
-            "consecutiveSamples": 3
-          },
-          "success": true,
-          "id": "A"
+          "visualReport": {
+            "path": "c:\\code\\FrenchExDev\\FrenchExDev_i2\\VsCode\\FrenchExDev\\FrenchExDev.PoSh.WatchDog.PoSh\\.sandbox\\run-LW1RSb\\user-A\\User\\workspaceStorage\\ac3d97fcdfcca03d2a3af9109ab20491\\FrenchExDev.powershell-watchdog\\diagnostic-reports\\watchdog-2026-10-29T03-47-24-851Z-acfa75c5-b44a-4998-bf1e-7f40f6496e9c.html",
+            "bytes": 46244,
+            "retainedEntries": 22,
+            "filesRead": 1
+          }
         },
         {
+          "id": "B",
+          "success": true,
+          "reopened": true,
           "checks": [
             "An ordinary pwsh terminal is measured without explicitly starting Editor Services.",
             "Nested pwsh ownership is measured and exited child processes disappear from the inventory.",
@@ -228,394 +137,48 @@
             "A high-memory ordinary pwsh produces per-process warnings without restarting the editor session or closing that terminal.",
             "Enable/disable persist as user settings; workspace mode override is ignored.",
             "Diagnostic view contains bounded measurements without command lines or script content.",
+            "The installed HTML diagnostic command exports this window’s retained journals and process inventory to a standalone local file and requests external opening.",
             "A fresh editor process preserved disabled monitoring and the per-workspace restart quota."
           ],
-          "reopened": true,
-          "high": {
-            "pid": 26384,
-            "createdAt": "2026-10-29T01:51:59.197292Z",
-            "privateBytes": 271659008,
-            "workingSetBytes": 370614272,
-            "measuredAt": "2026-10-29T01:52:23.0322104Z",
-            "collectorPowerShellVersion": "7.6.9",
-            "rootPid": 26384,
-            "kind": "editorServices",
-            "automaticRestart": true
-          },
-          "replacement": null,
-          "initial": {
-            "pid": 26384,
-            "createdAt": "2026-10-29T01:51:59.197292Z",
-            "privateBytes": 61685760,
-            "workingSetBytes": 155967488,
-            "measuredAt": "2026-10-29T01:52:06.5096241Z",
-            "collectorPowerShellVersion": "7.6.9",
-            "rootPid": 26384,
-            "kind": "editorServices",
-            "automaticRestart": true
-          },
-          "ordinaryHigh": {
-            "pid": 25488,
-            "createdAt": "2026-10-29T01:51:49.5110339Z",
-            "privateBytes": 276582400,
-            "workingSetBytes": 305786880,
-            "measuredAt": "2026-10-29T01:53:07.8532428Z",
-            "collectorPowerShellVersion": "7.6.9",
-            "rootPid": 25488,
-            "kind": "terminal",
-            "automaticRestart": false,
-            "state": "confirmed",
-            "consecutiveSamples": 3
-          },
-          "success": true,
-          "id": "B"
+          "visualReport": {
+            "path": "c:\\code\\FrenchExDev\\FrenchExDev_i2\\VsCode\\FrenchExDev\\FrenchExDev.PoSh.WatchDog.PoSh\\.sandbox\\run-LW1RSb\\user-B\\User\\workspaceStorage\\a4c3711bfea4196d18059204ba915c44\\FrenchExDev.powershell-watchdog\\diagnostic-reports\\watchdog-2026-10-29T03-47-23-959Z-81de60a5-cd3a-4617-8a28-327f0b2cdbc2.html",
+            "bytes": 46259,
+            "retainedEntries": 22,
+            "filesRead": 1
+          }
         }
-      ],
-      "testedVSIXSha256": "62c29ebd5b86f0e2d02965331edd6928ac102d15e632bcaf3dedfdcec2a344d2",
-      "allocationMiB": {
-        "editorServicesPerWindow": 192,
-        "ordinaryPerWindow": 192,
-        "windows": 2
-      }
+      ]
     }
   ],
   "artifact": {
-    "sha256": "40d732af9ad51177471313fb6ccb06762ac4204ac886a2172797dbdda4768626",
-    "files": 21,
-    "runtimeMatchesBothTestedInstallations": true,
+    "path": "dist/powershell-watchdog-0.3.0.vsix",
+    "sha256": "e90b17aa074e3cfe5d6dd72fc7bf1dbb9784e28b20e2ce5f0c5b12fd10b945e7",
+    "bytes": 74778,
+    "files": 24,
     "runtimeHashes": {
-      "scripts/Measure-Session.ps1": "95e97a3635270ba4f1601c071cd983dda8e07ba9e3f7ae6f6b9b3a54721bf3d8",
-      "scripts/Measure-WindowProcesses.ps1": "99f6d7da4cb83933f1227931be9efa6c29aa1745f70da35156818ce22c36d31b",
-      "scripts/Select-WindowProcesses.ps1": "86ecc73740d4ff319896706d1952b5382a640f3c4446f641e8c781b2b7f0aa05",
+      "src/report-chart.js": "c0209c0739f3cab2768ee131d8d2916c1058e5065fbd1a5e58b9a5f54cb76497",
+      "src/diagnostics-report.js": "dd56ec6b0b1f9a3d6af905a54a49951b7aeba9fb43c6a1da3a86549e665899f5",
       "src/collector.js": "89f3938e1ab89c9f50b3d934ee55a44d3b4c1e2217073972ffcea087f87a1214",
-      "src/configuration.js": "59b454f481b148a0ec4f87ad8d45dac04b316bae9d388d805285146543887f35",
-      "src/controller.js": "f5bed6d8e7b03a9ef6ccf72e91e4b74abe6c99fc8e2724301315e3a9728fb580",
-      "src/extension.js": "28bf65cae26b9157187659da54924769ce71e5253bed43b933491514e1e09f0b",
-      "src/journal.js": "6eb10adc0f32ab08d25450a15156ef7895440192dfb66127a2fdcdb94e7bb36a",
+      "src/controller.js": "1ab50712285776c20fa097058b53646960454b231a20296c5b58e2a37e5dfa64",
+      "src/extension.js": "ce61269ab9c40ad557803a4aa803b88e30d455f923f77da66fd2562b95f244b8",
+      "src/session.js": "6a97b85476a2389c9d4688b637fe80bbee30d9f28019dc2c66e17f95a92a0ca3",
       "src/observer.js": "d9ed749d8968fe0871c99bd11a95837a7730f68d8f0b8835ddb0e48a67651ee0",
       "src/policy.js": "a4dde024bef13b2da3be5f24b0b45685bbb858aeecaf2c54cbdd21fb6d3fe24e",
-      "src/presentation.js": "c9c6e4c4b1371d5af9b1311676625c5356ed3e0173d1aabf9ea9146fd086257d",
-      "src/session.js": "6a97b85476a2389c9d4688b637fe80bbee30d9f28019dc2c66e17f95a92a0ca3"
-    },
-    "bytes": 59587,
-    "path": "dist/powershell-watchdog-0.2.0.vsix"
-  },
-  "limits": [
-    "Ordinary terminal and child pwsh processes generate alerts only; only verified Editor Services may restart automatically.",
-    "Microsoft PowerShell 2026.1.2 is required only for editor restart association.",
-    "Stabilized attributable overhead below 50 MiB is not established.",
-    "Detached/orphaned processes without a surviving ownership chain cannot be safely associated.",
-    "Real access-denied, genuinely hung Editor Services, long-duration and shared-profile multi-window editor runs remain unqualified."
-  ]
-}
-=======
-{
-  "date": "2026-10-29",
-  "version": "0.2.0",
-  "scope": "Each VS Code window: terminal, nested and extension-host pwsh processes",
-  "environment": {
-    "node": "26.8.1",
-    "powershellExtensionForEditorRestart": "2026.1.2",
-    "collectorPowerShell": "7.6.9",
-    "os": "Windows 11 Pro",
-    "version": "10.0.26300",
-    "architecture": "x64"
-  },
-  "unitTests": {
-    "command": "node --test --test-reporter=tap test/*.test.js",
-    "total": 47,
-    "failed": 0,
-    "durationMs": 895.571,
-    "evidence": "QuietCli RECORD b5f535e28767",
-    "passed": 47
-  },
-  "integration": [
-    {
-      "vscode": "1.144.0",
-      "app": "Visual Studio Code",
-      "windows": [
-        {
-          "checks": [
-            "An ordinary pwsh terminal is measured without explicitly starting Editor Services.",
-            "Nested pwsh ownership is measured and exited child processes disappear from the inventory.",
-            "Installed VSIX activated and measured the local Editor Services session.",
-            "notifyOnly retained the session during three measured high-memory samples.",
-            "Each window measures its own Editor Services and ordinary terminal while excluding the other window’s processes.",
-            "A real PowerShell debugger deferred automatic restart until fresh post-debug samples.",
-            "Automatic restart replaced only window A session and entered cooldown.",
-            "A high-memory ordinary pwsh produces per-process warnings without restarting the editor session or closing that terminal.",
-            "Enable/disable persist as user settings; workspace mode override is ignored.",
-            "Diagnostic view contains bounded measurements without command lines or script content.",
-            "A fresh editor process preserved disabled monitoring and the per-workspace restart quota."
-          ],
-          "reopened": true,
-          "high": {
-            "pid": 22944,
-            "createdAt": "2026-10-29T01:51:59.8388262Z",
-            "privateBytes": 270893056,
-            "workingSetBytes": 367255552,
-            "measuredAt": "2026-10-29T01:52:16.3279669Z",
-            "collectorPowerShellVersion": "7.6.9",
-            "rootPid": 22944,
-            "kind": "editorServices",
-            "automaticRestart": true
-          },
-          "replacement": {
-            "pid": 32540,
-            "createdAt": "2026-10-29T01:52:26.41162Z",
-            "privateBytes": 55083008,
-            "workingSetBytes": 147013632,
-            "measuredAt": "2026-10-29T01:52:30.8124344Z",
-            "collectorPowerShellVersion": "7.6.9",
-            "rootPid": 32540,
-            "kind": "editorServices",
-            "automaticRestart": true
-          },
-          "initial": {
-            "pid": 22944,
-            "createdAt": "2026-10-29T01:51:59.8388262Z",
-            "privateBytes": 58163200,
-            "workingSetBytes": 151887872,
-            "measuredAt": "2026-10-29T01:52:07.6138111Z",
-            "collectorPowerShellVersion": "7.6.9",
-            "rootPid": 22944,
-            "kind": "editorServices",
-            "automaticRestart": true
-          },
-          "ordinaryHigh": {
-            "pid": 32156,
-            "createdAt": "2026-10-29T01:51:48.9330757Z",
-            "privateBytes": 278179840,
-            "workingSetBytes": 308899840,
-            "measuredAt": "2026-10-29T01:52:51.0937119Z",
-            "collectorPowerShellVersion": "7.6.9",
-            "rootPid": 32156,
-            "kind": "terminal",
-            "automaticRestart": false,
-            "state": "confirmed",
-            "consecutiveSamples": 3
-          },
-          "success": true,
-          "id": "A"
-        },
-        {
-          "checks": [
-            "An ordinary pwsh terminal is measured without explicitly starting Editor Services.",
-            "Nested pwsh ownership is measured and exited child processes disappear from the inventory.",
-            "Installed VSIX activated and measured the local Editor Services session.",
-            "notifyOnly retained the session during three measured high-memory samples.",
-            "Each window measures its own Editor Services and ordinary terminal while excluding the other window’s processes.",
-            "Window B session remained unchanged after window A automatic restart.",
-            "A high-memory ordinary pwsh produces per-process warnings without restarting the editor session or closing that terminal.",
-            "Enable/disable persist as user settings; workspace mode override is ignored.",
-            "Diagnostic view contains bounded measurements without command lines or script content.",
-            "A fresh editor process preserved disabled monitoring and the per-workspace restart quota."
-          ],
-          "reopened": true,
-          "high": {
-            "pid": 30420,
-            "createdAt": "2026-10-29T01:51:58.5485919Z",
-            "privateBytes": 271921152,
-            "workingSetBytes": 369348608,
-            "measuredAt": "2026-10-29T01:52:13.3347534Z",
-            "collectorPowerShellVersion": "7.6.9",
-            "rootPid": 30420,
-            "kind": "editorServices",
-            "automaticRestart": true
-          },
-          "replacement": null,
-          "initial": {
-            "pid": 30420,
-            "createdAt": "2026-10-29T01:51:58.5485919Z",
-            "privateBytes": 58761216,
-            "workingSetBytes": 152670208,
-            "measuredAt": "2026-10-29T01:52:05.5542801Z",
-            "collectorPowerShellVersion": "7.6.9",
-            "rootPid": 30420,
-            "kind": "editorServices",
-            "automaticRestart": true
-          },
-          "ordinaryHigh": {
-            "pid": 24460,
-            "createdAt": "2026-10-29T01:51:49.7112319Z",
-            "privateBytes": 277024768,
-            "workingSetBytes": 305819648,
-            "measuredAt": "2026-10-29T01:52:39.8054901Z",
-            "collectorPowerShellVersion": "7.6.9",
-            "rootPid": 24460,
-            "kind": "terminal",
-            "automaticRestart": false,
-            "state": "confirmed",
-            "consecutiveSamples": 3
-          },
-          "success": true,
-          "id": "B"
-        }
-      ],
-      "testedVSIXSha256": "62c29ebd5b86f0e2d02965331edd6928ac102d15e632bcaf3dedfdcec2a344d2",
-      "allocationMiB": {
-        "editorServicesPerWindow": 192,
-        "ordinaryPerWindow": 192,
-        "windows": 2
-      }
-    },
-    {
-      "vscode": "1.145.0-insider",
-      "app": "Visual Studio Code - Insiders",
-      "windows": [
-        {
-          "checks": [
-            "An ordinary pwsh terminal is measured without explicitly starting Editor Services.",
-            "Nested pwsh ownership is measured and exited child processes disappear from the inventory.",
-            "Installed VSIX activated and measured the local Editor Services session.",
-            "notifyOnly retained the session during three measured high-memory samples.",
-            "Each window measures its own Editor Services and ordinary terminal while excluding the other window’s processes.",
-            "A real PowerShell debugger deferred automatic restart until fresh post-debug samples.",
-            "Automatic restart replaced only window A session and entered cooldown.",
-            "A high-memory ordinary pwsh produces per-process warnings without restarting the editor session or closing that terminal.",
-            "Enable/disable persist as user settings; workspace mode override is ignored.",
-            "Diagnostic view contains bounded measurements without command lines or script content.",
-            "A fresh editor process preserved disabled monitoring and the per-workspace restart quota."
-          ],
-          "reopened": true,
-          "high": {
-            "pid": 28420,
-            "createdAt": "2026-10-29T01:52:00.5263239Z",
-            "privateBytes": 271396864,
-            "workingSetBytes": 371998720,
-            "measuredAt": "2026-10-29T01:52:17.0481706Z",
-            "collectorPowerShellVersion": "7.6.9",
-            "rootPid": 28420,
-            "kind": "editorServices",
-            "automaticRestart": true
-          },
-          "replacement": {
-            "pid": 35596,
-            "createdAt": "2026-10-29T01:52:42.7016238Z",
-            "privateBytes": 62312448,
-            "workingSetBytes": 160165888,
-            "measuredAt": "2026-10-29T01:52:51.1630624Z",
-            "collectorPowerShellVersion": "7.6.9",
-            "rootPid": 35596,
-            "kind": "editorServices",
-            "automaticRestart": true
-          },
-          "initial": {
-            "pid": 28420,
-            "createdAt": "2026-10-29T01:52:00.5263239Z",
-            "privateBytes": 63045632,
-            "workingSetBytes": 159940608,
-            "measuredAt": "2026-10-29T01:52:10.4497067Z",
-            "collectorPowerShellVersion": "7.6.9",
-            "rootPid": 28420,
-            "kind": "editorServices",
-            "automaticRestart": true
-          },
-          "ordinaryHigh": {
-            "pid": 32344,
-            "createdAt": "2026-10-29T01:51:50.6520274Z",
-            "privateBytes": 276832256,
-            "workingSetBytes": 305606656,
-            "measuredAt": "2026-10-29T01:53:02.7159164Z",
-            "collectorPowerShellVersion": "7.6.9",
-            "rootPid": 32344,
-            "kind": "terminal",
-            "automaticRestart": false,
-            "state": "confirmed",
-            "consecutiveSamples": 3
-          },
-          "success": true,
-          "id": "A"
-        },
-        {
-          "checks": [
-            "An ordinary pwsh terminal is measured without explicitly starting Editor Services.",
-            "Nested pwsh ownership is measured and exited child processes disappear from the inventory.",
-            "Installed VSIX activated and measured the local Editor Services session.",
-            "notifyOnly retained the session during three measured high-memory samples.",
-            "Each window measures its own Editor Services and ordinary terminal while excluding the other window’s processes.",
-            "Window B session remained unchanged after window A automatic restart.",
-            "A high-memory ordinary pwsh produces per-process warnings without restarting the editor session or closing that terminal.",
-            "Enable/disable persist as user settings; workspace mode override is ignored.",
-            "Diagnostic view contains bounded measurements without command lines or script content.",
-            "A fresh editor process preserved disabled monitoring and the per-workspace restart quota."
-          ],
-          "reopened": true,
-          "high": {
-            "pid": 26384,
-            "createdAt": "2026-10-29T01:51:59.197292Z",
-            "privateBytes": 271659008,
-            "workingSetBytes": 370614272,
-            "measuredAt": "2026-10-29T01:52:23.0322104Z",
-            "collectorPowerShellVersion": "7.6.9",
-            "rootPid": 26384,
-            "kind": "editorServices",
-            "automaticRestart": true
-          },
-          "replacement": null,
-          "initial": {
-            "pid": 26384,
-            "createdAt": "2026-10-29T01:51:59.197292Z",
-            "privateBytes": 61685760,
-            "workingSetBytes": 155967488,
-            "measuredAt": "2026-10-29T01:52:06.5096241Z",
-            "collectorPowerShellVersion": "7.6.9",
-            "rootPid": 26384,
-            "kind": "editorServices",
-            "automaticRestart": true
-          },
-          "ordinaryHigh": {
-            "pid": 25488,
-            "createdAt": "2026-10-29T01:51:49.5110339Z",
-            "privateBytes": 276582400,
-            "workingSetBytes": 305786880,
-            "measuredAt": "2026-10-29T01:53:07.8532428Z",
-            "collectorPowerShellVersion": "7.6.9",
-            "rootPid": 25488,
-            "kind": "terminal",
-            "automaticRestart": false,
-            "state": "confirmed",
-            "consecutiveSamples": 3
-          },
-          "success": true,
-          "id": "B"
-        }
-      ],
-      "testedVSIXSha256": "62c29ebd5b86f0e2d02965331edd6928ac102d15e632bcaf3dedfdcec2a344d2",
-      "allocationMiB": {
-        "editorServicesPerWindow": 192,
-        "ordinaryPerWindow": 192,
-        "windows": 2
-      }
-    }
-  ],
-  "artifact": {
-    "sha256": "40d732af9ad51177471313fb6ccb06762ac4204ac886a2172797dbdda4768626",
-    "files": 21,
-    "runtimeMatchesBothTestedInstallations": true,
-    "runtimeHashes": {
       "scripts/Measure-Session.ps1": "95e97a3635270ba4f1601c071cd983dda8e07ba9e3f7ae6f6b9b3a54721bf3d8",
+      "src/journal.js": "6f3b65266d6d1113298969cb4382be9d68a9debab89761133d99acb40e9bd658",
       "scripts/Measure-WindowProcesses.ps1": "99f6d7da4cb83933f1227931be9efa6c29aa1745f70da35156818ce22c36d31b",
-      "scripts/Select-WindowProcesses.ps1": "86ecc73740d4ff319896706d1952b5382a640f3c4446f641e8c781b2b7f0aa05",
-      "src/collector.js": "89f3938e1ab89c9f50b3d934ee55a44d3b4c1e2217073972ffcea087f87a1214",
-      "src/configuration.js": "59b454f481b148a0ec4f87ad8d45dac04b316bae9d388d805285146543887f35",
-      "src/controller.js": "f5bed6d8e7b03a9ef6ccf72e91e4b74abe6c99fc8e2724301315e3a9728fb580",
-      "src/extension.js": "28bf65cae26b9157187659da54924769ce71e5253bed43b933491514e1e09f0b",
-      "src/journal.js": "6eb10adc0f32ab08d25450a15156ef7895440192dfb66127a2fdcdb94e7bb36a",
-      "src/observer.js": "d9ed749d8968fe0871c99bd11a95837a7730f68d8f0b8835ddb0e48a67651ee0",
-      "src/policy.js": "a4dde024bef13b2da3be5f24b0b45685bbb858aeecaf2c54cbdd21fb6d3fe24e",
       "src/presentation.js": "c9c6e4c4b1371d5af9b1311676625c5356ed3e0173d1aabf9ea9146fd086257d",
-      "src/session.js": "6a97b85476a2389c9d4688b637fe80bbee30d9f28019dc2c66e17f95a92a0ca3"
+      "src/configuration.js": "59b454f481b148a0ec4f87ad8d45dac04b316bae9d388d805285146543887f35",
+      "scripts/Select-WindowProcesses.ps1": "86ecc73740d4ff319896706d1952b5382a640f3c4446f641e8c781b2b7f0aa05",
+      "src/report-view.js": "768f86176098ade3590001dd9f654a6b642ef57e78fcd0ddf10c0c2560672f67"
     },
-    "bytes": 59587,
-    "path": "dist/powershell-watchdog-0.2.0.vsix"
+    "runtimeMatchesBothTestedInstallations": true
   },
   "limits": [
-    "Ordinary terminal and child pwsh processes generate alerts only; only verified Editor Services may restart automatically.",
-    "Microsoft PowerShell 2026.1.2 is required only for editor restart association.",
-    "Stabilized attributable overhead below 50 MiB is not established.",
-    "Detached/orphaned processes without a surviving ownership chain cannot be safely associated.",
-    "Real access-denied, genuinely hung Editor Services, long-duration and shared-profile multi-window editor runs remain unqualified."
+    "Report export reads only the current window log session, with a 15-MiB disk budget.",
+    "Historical per-process coverage is bounded to the retained top 20 plus any separate Editor Services sample.",
+    "Reports are dated snapshots; the OS HTML association controls external opening.",
+    "The browser stress fixture is synthetic and does not establish attributable watchdog memory overhead.",
+    "Long-duration, real ACL denial, genuinely hung sessions and shared-profile real multi-window cases remain unqualified."
   ]
 }
->>>>>>> d0e14b44500725b1bb43178c1b857836b35de602

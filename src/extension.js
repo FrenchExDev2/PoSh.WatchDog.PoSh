@@ -7,6 +7,7 @@ const { WindowProcessObserver } = require('./observer');
 const { describeStatus } = require('./presentation');
 const { Journal } = require('./journal');
 const { WatchdogController } = require('./controller');
+const { exportVisualReport } = require('./diagnostics-report');
 
 const section = 'frenchexdev.powershellWatchdog';
 
@@ -47,6 +48,7 @@ function activate(context) {
       if (action === 'Suspend 15 minutes') await controller.suspend(15);
     }).catch(() => {});
   };
+  const journal = new Journal(context.logUri.fsPath);
   controller = new WatchdogController({
     observe: (milliseconds, signal) => {
       const problem = environmentProblem();
@@ -56,7 +58,7 @@ function activate(context) {
     commands: () => vscode.commands.getCommands(true),
     restart: () => vscode.commands.executeCommand('PowerShell.RestartSession'),
     debugging: () => debugSessions.size > 0,
-    journal: new Journal(context.logUri.fsPath),
+    journal,
     store: (value) => context.workspaceState.update('watchdog.policyState', value),
     onChange: update, notice,
   }, readPolicy(), context.workspaceState.get('watchdog.policyState', {}));
@@ -99,10 +101,25 @@ function activate(context) {
     await vscode.window.showTextDocument(document, { preview: true });
   });
   register('menu', async () => {
-    const items = [ ['Diagnostics', 'diagnostics'], ['Enable', 'enable'], ['Disable', 'disable'],
+    const items = [ ['Visual diagnostics (HTML)', 'visualDiagnostics'], ['Diagnostics (JSON)', 'diagnostics'], ['Enable', 'enable'], ['Disable', 'disable'],
       ['Suspend…', 'suspend'], ['Resume', 'resume'], ['Change mode…', 'changeMode'], ['Restart session…', 'restart'] ];
     const selection = await vscode.window.showQuickPick(items.map(([label, action]) => ({ label, action })), { title: 'PowerShell Memory Watchdog' });
     if (selection) await vscode.commands.executeCommand(`powershellWatchdog.${selection.action}`);
+  });
+  register('visualDiagnostics', async () => {
+    const result = await exportVisualReport({ journal, getSnapshot: () => controller.snapshot(),
+      environment: { extension: context.extension.packageJSON.version, vscode: vscode.version, app: vscode.env.appName,
+        platform: process.platform, node: process.versions.node,
+        powershellExtension: vscode.extensions.getExtension('ms-vscode.powershell')?.packageJSON.version || null },
+      storagePath: context.storageUri?.fsPath, globalStoragePath: context.globalStorageUri.fsPath,
+      openExternal: (filePath) => vscode.env.openExternal(vscode.Uri.file(filePath)),
+      onOpenFailure: (filePath) => {
+        void vscode.window.showWarningMessage(`HTML report saved at ${filePath}. The external application could not be opened.`, 'Reveal report').then(async (choice) => {
+          if (choice === 'Reveal report') await vscode.commands.executeCommand('revealFileInOS', vscode.Uri.file(filePath));
+        }).catch(() => {});
+      },
+    });
+    return vscode.Uri.file(result.filePath);
   });
   context.subscriptions.push(status, controller,
     vscode.workspace.onDidChangeConfiguration((event) => {

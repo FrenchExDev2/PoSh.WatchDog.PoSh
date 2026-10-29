@@ -65,6 +65,7 @@ class WatchdogController {
       sample: this.sample, warningPrivateGiB: this.engine.policy.warningPrivateGiB,
       restartPrivateGiB: this.engine.policy.restartPrivateGiB,
       mode: this.engine.policy.mode, consecutiveSamples: this.engine.count,
+      sampleIntervalSeconds: this.engine.policy.sampleIntervalSeconds,
       ...(this.inventory ? { processCount: this.inventory.processes.length, complete: this.inventory.complete,
         processes: [...this.inventory.processes].sort((left, right) => right.privateBytes - left.privateBytes).slice(0, 20),
         omittedProcesses: Math.max(0, this.inventory.processes.length - 20),

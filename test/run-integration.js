@@ -46,7 +46,8 @@ async function main() {
     version: process.env.WATCHDOG_TEST_CHANNEL || 'insiders', cachePath: path.join(root, '.vscode-test'),
   });
   const sourcePowerShell = process.env.WATCHDOG_TEST_EXTENSION;
-  const pwsh = process.env.WATCHDOG_TEST_PWSH;
+  // The collector verifies the executable against Windows' native absolute path.
+  const pwsh = process.env.WATCHDOG_TEST_PWSH && path.resolve(process.env.WATCHDOG_TEST_PWSH);
   if (!sourcePowerShell || !pwsh) throw new Error('Set WATCHDOG_TEST_EXTENSION and WATCHDOG_TEST_PWSH. Optionally select WATCHDOG_TEST_VSCODE or WATCHDOG_TEST_CHANNEL.');
   const base = path.join(root, '.sandbox');
   await fs.mkdir(base, { recursive: true });
@@ -116,6 +117,9 @@ async function main() {
       stdout: sink, stderr: sink,
     };
     await runEditor(options);
+    const initial = JSON.parse(await fs.readFile(path.join(shared, `${id}.json`), 'utf8'));
+    await fs.writeFile(path.join(shared, `${id}.initial.json`), JSON.stringify(initial, null, 2));
+    if (!initial.success) throw new Error(`Initial sandbox ${id} failed: ${initial.error || 'No success evidence.'}`);
     return runEditor({ ...options, extensionTestsEnv: { ...options.extensionTestsEnv, WATCHDOG_TEST_REOPEN: '1' } });
   }));
   const reports = await Promise.all(['A', 'B'].map(async (id) => {

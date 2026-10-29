@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.3.0
+
+- Add **Open Visual Diagnostics (HTML)** to export this window's retained journals and open an offline graphical report externally.
+- Show process memory curves, historical thresholds, observed peak rankings, recorded events, current inventory and environment information.
+- Preserve PID/creation-time identities, measurement gaps and explicit partial history; merge bounded disk and memory evidence without duplicate collections.
+- Keep dated exports in extension storage and expose the saved location if external opening fails. No runtime npm dependency or report network request is required.
+
 ## 0.2.0
 
 - Monitor ordinary pwsh terminals and their children per VS Code window, independently of Microsoft PowerShell activation.

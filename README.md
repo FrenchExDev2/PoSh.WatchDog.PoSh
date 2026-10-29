@@ -4,7 +4,7 @@ A Windows Desktop VS Code extension that measures **private committed memory** a
 
 ## Install
 
-Install `dist/powershell-watchdog-0.2.0.vsix` using **Extensions: Install from VSIX…** in VS Code Stable or Insiders. Requires VS Code 1.114 or later, Windows and an independent PowerShell 7 Core collector. Ordinary `pwsh` monitoring works without the Microsoft PowerShell extension or an open `.ps1` file. Reload the window after upgrading an already active watchdog.
+Install `dist/powershell-watchdog-0.3.0.vsix` using **Extensions: Install from VSIX…** in VS Code Stable or Insiders. Requires VS Code 1.114 or later, Windows and an independent PowerShell 7 Core collector. Ordinary `pwsh` monitoring works without the Microsoft PowerShell extension or an open `.ps1` file. Reload the window after upgrading an already active watchdog.
 
 Automatic Editor Services restart additionally requires **ms-vscode.powershell 2026.1.2** and its verified window association. Unknown extension versions and ambiguous Editor Services do not disable ordinary process measurements or alerts. Remote windows, the browser, Linux and macOS remain unsupported. Actual editor qualification is documented in `QUALIFICATION.md`.
 
@@ -29,6 +29,16 @@ A restart is requested only through the current window's registered `PowerShell.
 ## Diagnostics and budgets
 
 Diagnostics opens a JSON document containing the current policy, all measured processes with kind and restart capability, completeness/errors, the previous inventory, Editor Services identity, decisions and environment versions. Collection errors never become zero memory. Inventory is bounded to 256 pwsh instances and 255 terminal roots plus the extension host; overflow is explicit. History retains 200 collections, each with the 20 largest measured processes and an omitted count. The journal uses VS Code's per-window extension log directory: `watchdog.0.jsonl` through `watchdog.2.jsonl`, each at most 5 MiB. Storage failures are visible in diagnostics. The shared extension host must itself remain responsive.
+
+## Visual diagnostic report
+
+Run **PowerShell Watchdog: Open Visual Diagnostics (HTML)** from the command palette or **Visual diagnostics (HTML)** from the status-bar menu. It saves a uniquely dated HTML file under `diagnostic-reports` in the extension's workspace storage, or global extension storage when no workspace is open, then requests external opening. The system association for `.html` normally opens the browser. If opening fails, a notification gives the saved path and **Reveal report** action. Each export is retained; generating another report does not overwrite an earlier one.
+
+The self-contained file works offline and includes current state and process inventory, private/resident memory curves with a process selector and hover values, historical per-process thresholds, observed peak rankings, paginated recorded events and environment versions. Uncheck **Show per-process thresholds** to inspect smaller memory changes. It is a point-in-time report; rerun the command to update it. The JSON diagnostic remains available separately.
+
+Exports read only the three journal files in this window's current log directory, at most 15 MiB, and merge them with the 200-entry in-memory history. They do not search previous VS Code log sessions or other windows. Missing/unreadable files, malformed records and capped files are reported. Retained historical inventories contain the 20 largest processes, with an additional Editor Services sample when available: absent samples are gaps, incomplete current totals are lower bounds, and recorded peaks are not exhaustive lifetime maxima. Older journal entries lack the sampling cadence; their long-gap detection uses the median retained interval. Plot reduction preserves peaks and interruptions while the complete normalized retained data remains embedded in the HTML. No collection, restart or policy change is requested by exporting.
+
+`node test/run-report-browser.js` exercises an existing Edge/Chromium browser with a separate headless profile and near-15-MiB prepared journals, without downloads. Set `WATCHDOG_TEST_BROWSER` for another installed Chromium executable. It verifies offline rendering, PID reuse, gaps, escaping, controls and narrow layout; JSON results are written to `verification/report-browser.json`, with sample HTML and screenshots under `.sandbox/report-*`.
 
 ## Develop and qualify
 

@@ -31,7 +31,7 @@ exports.run = async () => {
   try {
     const extension = vscode.extensions.getExtension('FrenchExDev.powershell-watchdog');
     assert.ok(extension, 'VSIX must be installed; the product is not an extensionDevelopmentPath.');
-    assert.equal(extension.packageJSON.version, '0.2.0');
+    assert.equal(extension.packageJSON.version, require('../../package.json').version);
     const api = await extension.activate();
     if (reopening) {
       await api.sampleNow();
@@ -182,6 +182,24 @@ exports.run = async () => {
     assert.ok(diagnostic.history.length <= 200);
     assert.ok(!JSON.stringify(diagnostic).includes('WatchdogSandboxAllocation'));
     report.checks.push('Diagnostic view contains bounded measurements without command lines or script content.');
+    await until(async () => {
+      await api.sampleNow();
+      return api.getSnapshot().processes.some((item) => item.pid === ordinaryPid);
+    }, 'fresh inventory after policy configuration before exporting HTML');
+    const htmlUri = await vscode.commands.executeCommand('powershellWatchdog.visualDiagnostics');
+    assert.equal(htmlUri.scheme, 'file');
+    const html = await fs.readFile(htmlUri.fsPath, 'utf8');
+    assert.ok(html.startsWith('<!doctype html>'));
+    const visual = JSON.parse(/<script id="report-data" type="application\/json">([\s\S]*?)<\/script>/.exec(html)[1]);
+    assert.equal(visual.environment.extension, extension.packageJSON.version);
+    assert.ok(visual.quality.filesRead > 0);
+    assert.ok(visual.entries.length > 0);
+    assert.ok(visual.current.processes.some((item) => item.pid === ordinaryPid));
+    assert.ok(!visual.series.some((item) => item.pid === peer.pid || item.pid === peer.ordinaryPid));
+    assert.ok(!html.includes('WatchdogSandboxAllocation'));
+    report.observations.visualReport = { path: htmlUri.fsPath, bytes: Buffer.byteLength(html),
+      retainedEntries: visual.entries.length, filesRead: visual.quality.filesRead };
+    report.checks.push('The installed HTML diagnostic command exports this window’s retained journals and process inventory to a standalone local file and requests external opening.');
     const start = performance.now();
     const baseline = process.memoryUsage().heapUsed;
     for (let index = 0; index < 10000; index++) api.getSnapshot();

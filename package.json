@@ -2,7 +2,7 @@
   "name": "powershell-watchdog",
   "displayName": "PowerShell Memory Watchdog",
   "description": "Monitor memory of pwsh processes owned by each local VS Code window on Windows.",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "publisher": "FrenchExDev",
   "repository": {
     "type": "git",
@@ -40,7 +40,8 @@
   "scripts": {
     "test": "node --test test/*.test.js",
     "package": "vsce package --no-dependencies --out dist/",
-    "test:integration": "node test/run-integration.js"
+    "test:integration": "node test/run-integration.js",
+    "test:report-browser": "node test/run-report-browser.js"
   },
   "contributes": {
     "commands": [
@@ -71,6 +72,10 @@
       {
         "command": "powershellWatchdog.diagnostics",
         "title": "PowerShell Watchdog: Show Diagnostics"
+      },
+      {
+        "command": "powershellWatchdog.visualDiagnostics",
+        "title": "PowerShell Watchdog: Open Visual Diagnostics (HTML)"
       },
       {
         "command": "powershellWatchdog.menu",

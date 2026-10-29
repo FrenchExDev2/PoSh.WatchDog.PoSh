@@ -1,4 +1,38 @@
-# Qualification — 0.2.0
+# Qualification — 0.3.0
+
+Date: **29 October 2026**. The visual diagnostic adds an offline HTML export; collection, process ownership and restart authority keep their existing scope.
+
+## Automated checks
+
+**63 unit tests pass, zero failures.** The existing policy, ownership, controller and journal tests remain covered. Added cases exercise serialized journal reads during rotation, missing and unreadable journal paths, malformed JSON, byte caps, disk/memory deduplication, legacy Editor Services-only records, PID reuse, partial inventories, invalid measurements, text escaping, recorded events, graph discontinuities, peak-preserving display reduction, unique report files, workspace/global storage and external-open failure.
+
+## Browser qualification
+
+`test/run-report-browser.js` uses a separate owned headless Edge profile, existing browser **156.0.4314.50**, and three prepared journal files containing **15,728,179 bytes / 13,686 entries**. The exported HTML retains every normalized valid entry. The fixture includes reused PIDs, missing measurements, changing thresholds, partial inventory and text containing HTML/script delimiters.
+
+Actual browser checks pass for offline rendering, process selection, threshold visibility, pointer values, event pagination, empty history and desktop/narrow layout. No remote request, JavaScript exception or CSP error is observed. Screenshots are inspected at **1440 × 1100** and **720 × 1100**. `verification/report-browser.json` identifies the fixture HTML and screenshots under `.sandbox/report-*`. Fixture values are synthetic and are not measurements of this workstation.
+
+## Installed-VSIX qualification
+
+Both **VS Code Stable 1.144.0** and **Insiders 1.145.0-insider** pass in two independent sandbox windows with separate profiles and workspaces, using **PowerShell Core 7.6.9** and **ms-vscode.powershell 2026.1.2**.
+
+The actual installed **0.3.0 VSIX** activates, measures ordinary/nested pwsh, excludes peer-window processes and preserves the earlier debugger deferral, measured Editor Services replacement, notify-only policy, machine settings and persisted disable/quota scenarios. The new palette command generates a local standalone HTML file from the window's on-disk journal and current process inventory and requests external opening. Its embedded data contains the expected ordinary process and excludes the peer window's identities. The existing JSON command still opens its diagnostic document.
+
+Reports: `verification/integration-stable.json` and `verification/integration-insiders.json`. They retain tested archive SHA-256, all **15 installed runtime-file hashes**, initial-run evidence and the generated HTML paths. The runner normalizes its configured PowerShell executable to the native Windows path, waits for a fresh inventory after configuration changes, and refuses persistence tests when the first run failed.
+
+Final documentation-only repackaging can change the archive hash; `verification/results.json` records the delivered artifact and checks every runtime file against both independently tested installations. The distributable checksum is next to the VSIX in `dist/`.
+
+## Bounds and remaining limits
+
+- Export reads only this window's current three rotated journal files, **at most 15 MiB**, and merges them with the 200-entry memory history. It does not discover earlier editor log sessions.
+- Historical inventories retain at most 20 processes; separate Editor Services samples may provide additional observations. Partial history is explicit; absent measurements remain gaps and observed peaks do not establish lifetime maxima. Older records use inferred cadence for long-gap detection.
+- A report is a dated snapshot. Opening uses the operating system's `.html` association; failure retains the file and offers its location. Chromium/Edge browser behavior is qualified; other browser engines are not separately exercised.
+- Export creates no new runtime dependency, network request, memory collection, restart request or policy change. Saved reports are not automatically deleted.
+- Long-duration stability, real access-denied ACL behavior, genuinely unresponsive Editor Services, shared-profile multi-window isolation and stabilized attributable memory overhead remain unqualified. Remote/non-Windows execution remains outside the product scope.
+
+---
+
+# Historical qualification — 0.2.0
 
 Date: **29 October 2026**. Results distinguish simulated policy tests, installed-VSIX integration and measurements still outstanding.
 
