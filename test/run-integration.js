@@ -10,6 +10,7 @@ const { downloadAndUnzipVSCode } = require('@vscode/test-electron');
 
 const execute = promisify(execFile);
 const root = path.resolve(__dirname, '..');
+const version = require('../package.json').version;
 
 function runEditor(options) {
   // VS Code intentionally uses in-memory mementos with --extensionTestsPath.
@@ -59,7 +60,7 @@ async function main() {
   const cmd = await fs.readFile(path.join(binDirectory, 'bin', path.basename(executable).includes('Insiders') ? 'code-insiders.cmd' : 'code.cmd'), 'utf8');
   const versionDirectory = /\.\.\\([^"\r\n]+)\\resources\\app\\out\\cli\.js/.exec(cmd)?.[1];
   const cli = path.join(binDirectory, ...(versionDirectory ? [versionDirectory] : []), 'resources/app/out/cli.js');
-  const vsix = path.join(root, 'dist', 'powershell-watchdog-0.1.0.vsix');
+  const vsix = path.join(root, 'dist', `powershell-watchdog-${version}.vsix`);
   const install = await execute(executable, [cli, '--install-extension', vsix, '--extensions-dir', extensions,
     '--user-data-dir', path.join(sandbox, 'installer-data'), '--force'], {
     env: { ...process.env, ELECTRON_RUN_AS_NODE: '1' }, windowsHide: true, timeout: 60000, maxBuffer: 1024 ** 2,
@@ -123,7 +124,7 @@ async function main() {
   }));
   await fs.mkdir(path.join(root, 'verification'), { recursive: true });
   const report = { at: new Date().toISOString(), sandbox, installedVSIX: vsix, testedVSIXSha256, runtimeHashes,
-    boundedAllocationMiB: { editorServicesPerWindow: 192, ordinaryPerWindow: 32, windows: 2 },
+    boundedAllocationMiB: { editorServicesPerWindow: 192, ordinaryPerWindow: 192, windows: 2 },
     launchDiagnostics,
     outcomes: outcomes.map((outcome) => ({ status: outcome.status, exitCode: outcome.value,
       error: outcome.reason?.message })), reports };

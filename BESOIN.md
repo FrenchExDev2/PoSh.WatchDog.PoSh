@@ -207,3 +207,15 @@ Les seuils, budgets, noms de paramètres et critères d’acceptation du présen
 
 Le code doit être écrit en anglais et respecter les standards en vigueur.
 Tester le package dans un vscode-insiders bac à sable avec plusieurs powershell qui vont saturer la mémoire.
+
+## 12. Évolution demandée le 29 octobre 2026 — version 0.2
+
+L’utilisateur étend la surveillance aux **instances `pwsh` lancées par chaque instance/fenêtre VS Code**, y compris les terminaux ordinaires et leurs processus enfants. Chaque fenêtre suit son propre périmètre. Ce complément remplace la restriction de surveillance à Editor Services des sections 2, 3 et 5.1 ; les autres garanties de protection restent applicables.
+
+- La collecte et les alertes ne doivent pas dépendre de l’activation de l’extension Microsoft ou de l’ouverture d’un fichier `.ps1`.
+- L’appartenance repose sur les PID des terminaux de cette fenêtre, le PID de son hôte d’extensions, les liens de parenté Windows et leurs dates de création. La traversée s’arrête à la première frontière d’hôte VS Code ; un nom `pwsh.exe` seul ne suffit pas.
+- Les seuils et séries de dépassements s’évaluent **par processus**, avec réinitialisation lors d’un changement de date de création, d’une erreur ou d’une sortie du périmètre.
+- La barre d’état montre le nombre d’instances et leur mémoire privée totale ; l’info-bulle et le diagnostic détaillent chaque processus, ses métriques et son type d’action. Les mesures partielles sont explicites. L’attente, la découverte et une erreur de mesure ne sont pas affichées sous un même « unknown ».
+- Les processus ordinaires génèrent des alertes. Le redémarrage automatique reste limité à Editor Services, associé et vérifié selon les exigences antérieures. Aucune fermeture automatique de terminal ou terminaison forcée n’est ajoutée.
+- Les descendants détachés dont la chaîne de parenté ne peut plus être vérifiée restent hors association. Le collecteur ne se surveille pas lui-même.
+- La qualification ajoute un terminal ordinaire sans activation explicite de l’extension Microsoft, un enfant `pwsh`, sa disparition, des dépassements ordinaires sans redémarrage de l’éditeur et l’exclusion des processus de l’autre fenêtre.
